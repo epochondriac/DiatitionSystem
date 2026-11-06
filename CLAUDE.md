@@ -43,6 +43,7 @@ Three-tier system: React SPA → Flask REST API → PostgreSQL (with pgvector).
 - Pages live in `pages/`, reusable components in `components/` (sub-folders: `layout/`, `products/`, `settings/`, `meal/`, `login/`, `admin/`)
 - Shared types live in `types.ts`; auth context in `context/AuthContext.tsx`
 - API base URL set via `VITE_API_URL` env variable; called as `` `${import.meta.env.VITE_API_URL}/api/...` ``
+- `utils/apiAuth.ts` (installed in `main.tsx`) wraps `window.fetch` to attach the stored JWT to every API request and send the user to `/login` on 401, so plain `fetch()` calls are authenticated
 
 **Routes:**
 | Path | Page |
@@ -56,7 +57,9 @@ Three-tier system: React SPA → Flask REST API → PostgreSQL (with pgvector).
 | `/login` | LoginPage |
 
 ### Backend (`Server/`)
-- **app.py** — Flask entry point; registers Blueprints and enables CORS
+- **app.py** — Flask entry point; registers Blueprints and calls `init_security`
+- **security.py** — Global `before_request` guard: every `/api/*` call needs a JWT except `/api/status` and `/api/auth/login`; writes to products/upload/categories/sensitivities/textures/diets need `admin` or `dietitian`; `/api/system/*` and `/api/run-migrations` are admin-only. CORS origins come from `ALLOWED_ORIGINS` (comma-separated; empty = any)
+- `JWT_SECRET` is mandatory on Vercel (the server refuses to start without it)
 - **models.py** — SQLAlchemy models: `FoodItem`, `Meal`, `Category`, `Texture`, `Sensitivity`, `Diet`
 - **routes/** — One Blueprint module per resource: `products`, `meals`, `categories`, `sensitivities`, `textures`, `diets`, `system`
 - **routes/variable_usage.py** — Shared usage counting + guarded deletion for the four "variable" tables (categories, sensitivities, textures, diets). See *Variable deletion* below.

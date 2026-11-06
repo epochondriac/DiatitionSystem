@@ -9,7 +9,12 @@ from models import db, User
 
 auth_bp = Blueprint('auth', __name__)
 
-JWT_SECRET = os.environ.get('JWT_SECRET', 'dev-secret-change-in-production')
+# A known fallback secret would let anyone forge tokens, so it is refused on Vercel
+JWT_SECRET = os.environ.get('JWT_SECRET') or ''
+if not JWT_SECRET:
+    if os.environ.get('VERCEL'):
+        raise RuntimeError('JWT_SECRET must be set in the Vercel environment variables')
+    JWT_SECRET = 'dev-secret-change-in-production'
 JWT_EXPIRY_HOURS = 720
 
 

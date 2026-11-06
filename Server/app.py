@@ -3,7 +3,6 @@
 import os
 import bcrypt
 from flask import Flask
-from flask_cors import CORS
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -22,8 +21,10 @@ from routes.system import system_bp
 from routes.auth import auth_bp
 from routes.users import users_bp
 
+from security import init_security
+
 app = Flask(__name__)
-CORS(app)
+init_security(app)
 
 # The Connection String: Tells SQLAlchemy exactly where the Docker DB is
 # Format: postgresql://username:password@host:port/database_name
