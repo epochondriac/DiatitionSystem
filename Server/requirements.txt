@@ -3,7 +3,7 @@ flask-cors==6.0.5
 gunicorn==26.2.0
 psycopg2-binary==2.9.13
 Flask-SQLAlchemy==3.1.1
-SQLAlchemy==2.1.8
+SQLAlchemy==2.0.57
 openai==3.46.0
 python-dotenv==1.2.4
 pgvector==0.5.1

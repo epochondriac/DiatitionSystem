@@ -28,10 +28,15 @@ init_security(app)
 
 # The Connection String: Tells SQLAlchemy exactly where the Docker DB is
 # Format: postgresql://username:password@host:port/database_name
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+db_url = os.environ.get(
     'DATABASE_URL',
     'postgresql://admin:secretpassword@localhost:5432/hospital_system'
-)
+).strip()
+# Always use the installed psycopg2 driver, whatever URL form the host provides
+for prefix in ('postgres://', 'postgresql://'):
+    if db_url.startswith(prefix):
+        db_url = 'postgresql+psycopg2://' + db_url[len(prefix):]
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Connect the database to this Flask app
